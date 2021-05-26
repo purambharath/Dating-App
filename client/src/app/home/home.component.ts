@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit {
   cancelRegisterMode(event : boolean)
   { 
 
-    alert(event);
+    
 this.registerMode = event;
 
   }
