@@ -27,8 +27,6 @@ namespace Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
-
-
             if (await UserExist(registerDto.Username)) return BadRequest("Username is taken");
             using var hmac = new HMACSHA512();
 
@@ -38,13 +36,8 @@ namespace Controllers
                 PasswordHalt = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
                 PasswordSalt = hmac.Key
             };
-
-
-
             _context.Users.Add(user);
-
             await _context.SaveChangesAsync();
-
             return new UserDto{
                 Username = user.UserName,
                 token = _tokenService.CreateToken(user)
