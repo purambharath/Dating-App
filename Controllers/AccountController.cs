@@ -41,6 +41,7 @@ namespace Controllers
             return new UserDto{
                 Username = user.UserName,
                 token = _tokenService.CreateToken(user)
+                // photoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
             };
 
         }
@@ -50,6 +51,7 @@ namespace Controllers
         {
 
             var user = await _context.Users
+            .Include(p => p.Photos)
             .SingleOrDefaultAsync(x => x.UserName == loginDto.Username);
 
             if (user == null) return Unauthorized("Invalid username");
@@ -65,7 +67,8 @@ namespace Controllers
 
              return new UserDto{
                 Username = user.UserName,
-                token = _tokenService.CreateToken(user)
+                token = _tokenService.CreateToken(user),
+                photoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
             };
 
 
