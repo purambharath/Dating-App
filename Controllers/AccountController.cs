@@ -7,6 +7,7 @@ using API.Data;
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +18,11 @@ namespace Controllers
     {
         private readonly DataContext _context;
         private readonly ITokenService _tokenService;
+        private readonly IMapper _mapper;
 
-        public AccountController(DataContext context, ITokenService tokenService)
+        public AccountController(DataContext context, ITokenService tokenService, IMapper mapper)
         {
+            _mapper = mapper;
             _context = context;
             _tokenService = tokenService;
         }
@@ -28,19 +31,22 @@ namespace Controllers
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if (await UserExist(registerDto.Username)) return BadRequest("Username is taken");
+
+            var user = _mapper.Map<AppUser>(registerDto);
             using var hmac = new HMACSHA512();
 
-            var user = new AppUser
-            {
-                UserName = registerDto.Username.ToLower(),
-                PasswordHalt = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-                PasswordSalt = hmac.Key
-            };
+       
+                user.UserName = registerDto.Username.ToLower();
+                user.PasswordHalt = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password));
+                user.PasswordSalt = hmac.Key;
+           
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return new UserDto{
+            return new UserDto
+            {
                 Username = user.UserName,
-                token = _tokenService.CreateToken(user)
+                token = _tokenService.CreateToken(user),
+                KnowAs=user.KnownAs
                 // photoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
             };
 
@@ -65,10 +71,12 @@ namespace Controllers
                 if (computedHash[i] != user.PasswordHalt[i]) return Unauthorized("Invalid password");
             }
 
-             return new UserDto{
+            return new UserDto
+            {
                 Username = user.UserName,
                 token = _tokenService.CreateToken(user),
-                photoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
+                photoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url,
+                KnowAs=user.KnownAs
             };
 
 

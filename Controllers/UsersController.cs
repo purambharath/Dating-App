@@ -39,6 +39,7 @@ namespace Controllers
 
 
         [HttpGet]
+        
         public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
         {
             // var Users = _context.Users.ToList();
