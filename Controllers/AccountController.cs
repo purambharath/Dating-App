@@ -46,7 +46,8 @@ namespace Controllers
             {
                 Username = user.UserName,
                 token = _tokenService.CreateToken(user),
-                KnowAs=user.KnownAs
+                KnowAs=user.KnownAs,
+                Gender=user.Gender
                 // photoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
             };
 
@@ -76,7 +77,8 @@ namespace Controllers
                 Username = user.UserName,
                 token = _tokenService.CreateToken(user),
                 photoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url,
-                KnowAs=user.KnownAs
+                KnowAs=user.KnownAs,
+                Gender=user.Gender
             };
 
 

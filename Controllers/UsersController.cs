@@ -16,7 +16,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Extentions;
 using System.Runtime.CompilerServices;
-
+using Helpers;
 
 namespace Controllers
 {
@@ -40,11 +40,13 @@ namespace Controllers
 
         [HttpGet]
         
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
         {
             // var Users = _context.Users.ToList();
 
-            var users = await _userRepository.GetMembersAsync();
+            var users = await _userRepository.GetMembersAsync(userParams);
+
+            Response.AddPaginationHeader(users.CurrentPage,users.PageSize,users.TotalCount,users.TotalPages);
 
             // var usersToRetuen = _mapper.Map< IEnumerable< MemberDto>>(users);
 
@@ -77,6 +79,8 @@ namespace Controllers
             return BadRequest("Fail to update User");
 
         }
+
+        
 
         [HttpPost("add-photo")]
         public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
